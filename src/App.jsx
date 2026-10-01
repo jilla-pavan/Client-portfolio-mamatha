@@ -1,69 +1,95 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { setupMotion, gsap, ScrollTrigger } from "./motion";
+import { skills } from "./data/content";
 
-import Navbar from "./components/Navbar";
+import Preloader from "./components/Preloader";
+import Cursor from "./components/Cursor";
+import Masthead from "./components/Masthead";
 import Hero from "./components/Hero";
+import Marquee from "./components/Marquee";
+import Work from "./components/Work";
 import About from "./components/About";
+import Stats from "./components/Stats";
 import Experience from "./components/Experience";
-import Skills from "./components/Skills";
-import Process from "./components/Process";
-import Projects from "./components/Projects";
+import Toolkit from "./components/Toolkit";
+import Method from "./components/Method";
 import Contact from "./components/Contact";
 
-gsap.registerPlugin(ScrollTrigger);
+const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function App() {
+const bandA = ["React", "Node.js", "Python", "Java", "MySQL", "Express", "REST APIs"];
+const bandB = skills.flatMap((s) => s.items).filter((s) => !bandA.includes(s)).slice(0, 8);
+
+export default function App() {
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-    gsap.ticker.lagSmoothing(0);
+    const lenis = reduceMotion() ? null : new Lenis({ duration: 1.2, smoothWheel: true });
+    const raf = (time) => lenis?.raf(time * 1000);
+    if (lenis) {
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(raf);
+      gsap.ticker.lagSmoothing(0);
+    }
 
-    // Intercept in-page anchor clicks (nav links, "View My Work", etc.)
-    // and hand them to Lenis, otherwise Lenis's own render loop fights
-    // the browser's native instant jump and the click appears to do nothing.
-    const handleAnchorClick = (e) => {
+    // Route in-page anchors through Lenis so its loop doesn't fight the native jump.
+    const onClick = (e) => {
       const anchor = e.target.closest('a[href^="#"]');
       if (!anchor) return;
       const id = anchor.getAttribute("href").slice(1);
-      const target = document.getElementById(id);
+      const target = id ? document.getElementById(id) : document.body;
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: 0, duration: 1.2 });
+      if (lenis) lenis.scrollTo(target, { duration: 1.4 });
+      else target.scrollIntoView();
+      history.replaceState(null, "", id ? `#${id}` : " ");
     };
-    document.addEventListener("click", handleAnchorClick);
+    document.addEventListener("click", onClick);
     window.lenis = lenis;
 
-    // Recalculate ScrollTrigger start/end positions once everything
-    // (fonts, images, layout) has actually settled — otherwise triggers
-    // computed too early can end up misaligned with real content.
+    // Split headings only once the real fonts are in, so line breaks are final.
+    let cleanupMotion = () => {};
+    let cancelled = false;
+    document.fonts.ready.then(() => {
+      if (cancelled) return;
+      cleanupMotion = setupMotion();
+      ScrollTrigger.refresh();
+    });
     const refresh = () => ScrollTrigger.refresh();
     window.addEventListener("load", refresh);
-    const t = setTimeout(refresh, 1000);
 
     return () => {
-      document.removeEventListener("click", handleAnchorClick);
+      cancelled = true;
+      cleanupMotion();
+      document.removeEventListener("click", onClick);
       window.removeEventListener("load", refresh);
-      clearTimeout(t);
       window.lenis = null;
-      lenis.destroy();
+      if (lenis) {
+        gsap.ticker.remove(raf);
+        lenis.destroy();
+      }
     };
   }, []);
 
   return (
     <>
-      <Navbar />
-      <Hero />
-      <About />
-      <Experience />
-      <Skills />
-      <Process />
-      <Projects />
+      <a className="skip-link" href="#work">Skip to work</a>
+      <Preloader />
+      <Cursor />
+      <Masthead />
+      <main>
+        <Hero />
+        <div className="marquees" aria-label="Technologies">
+          <Marquee items={bandA} />
+          <Marquee items={bandB} outline reverse />
+        </div>
+        <Work />
+        <About />
+        <Stats />
+        <Experience />
+        <Toolkit />
+        <Method />
+      </main>
       <Contact />
     </>
   );
 }
-
-export default App;

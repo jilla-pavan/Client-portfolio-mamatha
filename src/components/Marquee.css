@@ -1,0 +1,33 @@
+.marquee {
+  overflow: hidden;
+  padding-block: clamp(0.75rem, 1.5vw, 1.25rem);
+  font-size: clamp(2.75rem, 7vw, 6.5rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+}
+.marquee__run {
+  display: flex;
+}
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+}
+.marquee__star {
+  width: 0.32em;
+  height: 0.32em;
+  margin-inline: 0.5em;
+  color: var(--gold);
+}
+.marquee .outline {
+  -webkit-text-stroke: 1.2px var(--ink-3);
+}
+
+.marquees {
+  padding-block: clamp(2rem, 5vw, 4rem);
+  border-block: 1px solid var(--line);
+  background: var(--bg-2);
+}

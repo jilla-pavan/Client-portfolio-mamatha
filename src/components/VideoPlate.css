@@ -1,0 +1,81 @@
+.video-plate {
+  aspect-ratio: 16 / 9;
+}
+.video-plate video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 1.2s var(--ease-out), filter 0.8s var(--ease-out);
+  filter: grayscale(0.25) brightness(0.92);
+}
+.video-plate:hover video {
+  transform: scale(1.04);
+  filter: none;
+}
+/* Gold corner ticks, like a viewfinder */
+.video-plate::before,
+.video-plate::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  border-color: var(--gold);
+  border-style: solid;
+}
+.video-plate::before {
+  top: 12px;
+  left: 12px;
+  border-width: 1px 0 0 1px;
+}
+.video-plate::after {
+  right: 12px;
+  bottom: 12px;
+  border-width: 0 1px 1px 0;
+}
+
+.video-plate__controls {
+  position: absolute;
+  z-index: 2;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.4rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.video-plate:hover .video-plate__controls,
+.video-plate:focus-within .video-plate__controls {
+  opacity: 1;
+  transform: none;
+}
+.video-plate__controls button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--gold);
+  background: rgba(8, 8, 8, 0.7);
+  border: 1px solid rgba(200, 161, 90, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.4s var(--ease-out), color 0.4s var(--ease-out);
+}
+.video-plate__controls button:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+.video-plate__controls svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+@media (hover: none) {
+  .video-plate__controls {
+    opacity: 1;
+    transform: none;
+  }
+}

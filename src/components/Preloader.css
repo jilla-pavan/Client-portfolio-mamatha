@@ -1,0 +1,59 @@
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: end start;
+  padding: var(--gutter);
+  background: var(--bg);
+  clip-path: inset(0 0 0 0);
+}
+.preloader__inner {
+  width: 100%;
+}
+.preloader__name {
+  display: flex;
+  overflow: hidden;
+  font-size: clamp(4rem, 16vw, 15rem);
+  line-height: 0.9;
+  color: var(--ink);
+}
+.preloader__name span {
+  display: block;
+}
+.preloader__name span:nth-last-child(-n + 2) {
+  color: var(--gold);
+}
+.preloader__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.preloader__count {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.02em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.preloader__bar {
+  height: 1px;
+  margin-top: 1rem;
+  background: var(--line);
+}
+.preloader__bar i {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.is-loading body {
+  overflow: hidden;
+}

@@ -1,78 +1,117 @@
-import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { FaGithub, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { useState } from "react";
+import { PiArrowUpRightLight, PiArrowUpLight } from "react-icons/pi";
+import { profile } from "../data/content";
 import "./Contact.css";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function Contact() {
-  const sectionRef = useRef(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(".contact__animate",
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: "power2.out",
-          scrollTrigger: { trigger: sectionRef.current, start: "top 80%" } }
-      );
-    }, sectionRef);
-    return () => ctx.revert();
-  }, []);
-
+  // No backend: compose the message in the visitor's own mail app.
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    const data = new FormData(e.currentTarget);
+    const subject = data.get("subject") || "Hello from your portfolio";
+    const body = `${data.get("message")}\n\n— ${data.get("name")} (${data.get("email")})`;
+    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setSent(true);
   };
 
+  const links = [
+    { label: "Email", value: profile.email, href: `mailto:${profile.email}` },
+    { label: "Phone", value: profile.phone, href: profile.phoneHref },
+    { label: "GitHub", value: profile.github.replace("https://", ""), href: profile.github, external: true },
+    profile.linkedin && { label: "LinkedIn", value: "View profile", href: profile.linkedin, external: true },
+    { label: "Based in", value: profile.location },
+  ].filter(Boolean);
+
   return (
-    <section id="contact" className="contact" ref={sectionRef}>
-      <div className="contact__inner">
-        <div className="contact__text contact__animate">
-          <p className="eyebrow">Let's Connect</p>
-          <h2>Let's Build Something Great Together</h2>
-          <p className="contact__sub">
-            Open to full-time roles, freelance projects, and collaborations.
-            I respond within 24 hours — let's make something amazing!
-          </p>
-          <div className="contact__links">
-            <a href="mailto:mamathadeeksha1061@gmail.com"><FaEnvelope /> mamathadeeksha1061@gmail.com</a>
-            <a href="tel:+919731950523"><FaPhone /> +91 97319 50523</a>
-            <a href="https://linkedin.com" target="_blank"><FaLinkedin /> LinkedIn Profile</a>
-            <a href="https://github.com/MamathaCoder" target="_blank"><FaGithub /> github.com/MamathaCoder</a>
-            <a href="#"><FaMapMarkerAlt /> Bengaluru, Karnataka</a>
+    <>
+      <section className="cta" aria-label="Work together">
+        <div className="wrap cta__inner">
+          <p className="cta__tag">Open to full-time roles, freelance &amp; collaborations</p>
+          <h2 className="display cta__title" data-reveal="lines">
+            Have a project in mind?
+          </h2>
+          <div className="cta__row" data-reveal="fade">
+            <a className="btn cta__btn" href="#contact" data-magnetic>
+              Start a conversation <PiArrowUpRightLight aria-hidden="true" />
+            </a>
+            <a className="cta__mail" href={`mailto:${profile.email}`}>{profile.email}</a>
           </div>
         </div>
+      </section>
 
-        <form className="contact__form contact__animate" onSubmit={handleSubmit}>
-          {submitted ? (
-            <div className="contact__success">Message sent! I'll get back to you within 24 hours. 🚀</div>
-          ) : (
-            <>
-              <div className="contact__row">
-                <input type="text" placeholder="Your name" required />
-                <input type="email" placeholder="Email address" required />
+      <footer id="contact" className="contact">
+        <div className="wrap">
+          <div className="contact__grid">
+            <div className="contact__direct">
+              <p className="tag">Let’s connect</p>
+              <h2 className="display title" data-reveal="lines">
+                Let’s build something <span className="accent">together.</span>
+              </h2>
+              <p className="lead" data-reveal="fade">
+                I reply within 24 hours — tell me about the role or the project.
+              </p>
+              <dl className="contact__links" data-reveal="fade">
+                {links.map((l) => (
+                  <div key={l.label}>
+                    <dt>{l.label}</dt>
+                    <dd>
+                      {l.href ? (
+                        <a href={l.href} {...(l.external ? { target: "_blank", rel: "noreferrer" } : {})}>
+                          {l.value}
+                        </a>
+                      ) : (
+                        l.value
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <form className="contact__form" onSubmit={handleSubmit} data-reveal="fade">
+              <div className="field">
+                <input id="f-name" name="name" type="text" autoComplete="name" placeholder=" " required />
+                <label htmlFor="f-name">Your name</label>
               </div>
-              <input type="text" placeholder="Subject / Role you're hiring for" required />
-              <textarea rows="5" placeholder="Tell me about the opportunity or project..." required />
-              <button type="submit" className="submit-btn">Send Message →</button>
-            </>
-          )}
-        </form>
-      </div>
+              <div className="field">
+                <input id="f-email" name="email" type="email" autoComplete="email" placeholder=" " required />
+                <label htmlFor="f-email">Email address</label>
+              </div>
+              <div className="field">
+                <input id="f-subject" name="subject" type="text" placeholder=" " />
+                <label htmlFor="f-subject">Role or project</label>
+              </div>
+              <div className="field">
+                <textarea id="f-message" name="message" rows="4" placeholder=" " required />
+                <label htmlFor="f-message">Message</label>
+              </div>
+              <div className="contact__submit">
+                <button type="submit" className="btn btn--fill" data-magnetic>
+                  Send message <PiArrowUpRightLight aria-hidden="true" />
+                </button>
+                <p className="contact__hint" role="status">
+                  {sent
+                    ? "Your mail app should now be open with the message ready to send."
+                    : "Opens your mail app with the message filled in."}
+                </p>
+              </div>
+            </form>
+          </div>
 
-      <footer className="footer">
-        <div className="footer__inner">
-          <span>© {new Date().getFullYear()} Mamatha H · All rights reserved.</span>
-          <div className="footer__links">
-            <a href="#hero">Home</a>
-            <a href="#about">About</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
+          <p className="contact__sign display" aria-hidden="true">
+            Mamatha<span>H.</span>
+          </p>
+
+          <div className="colophon">
+            <p>© {new Date().getFullYear()} {profile.name} · All rights reserved</p>
+            <a href="#hero" className="colophon__top">
+              Back to top <PiArrowUpLight aria-hidden="true" />
+            </a>
           </div>
         </div>
       </footer>
-    </section>
+    </>
   );
 }
